@@ -72,7 +72,6 @@ public class Main {
             int ordersCount = scanner.nextInt();
             scanner.nextLine();
             for (int i = 0; i < ordersCount; i++) {
-                scanner.nextLine();
                 int x, y;
                 x = scanner.nextInt();
                 y = scanner.nextInt();
@@ -84,6 +83,7 @@ public class Main {
                     temp.orders.add(new Product(j, scanner.nextInt()));
                 }
                 orders.add(temp);
+                scanner.nextLine();
             }
             br.close();
         } catch (IOException e) {

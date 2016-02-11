@@ -26,5 +26,6 @@ public class DeliverCommand implements IDroneCommand {
         drone.turn += ((int) Math.ceil(order.destination.distanceTo(drone.position))) + 1;
         drone.position = order.destination;
         drone.loadedProducts.remove(product);
+        order.orders.get(product.type).count -= product.count;
     }
 }

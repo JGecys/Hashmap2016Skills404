@@ -26,5 +26,6 @@ public class LoadCommand implements IDroneCommand {
         drone.turn += ((int) Math.ceil(warehouse.location.distanceTo(drone.position))) + 1;
         drone.position = warehouse.location;
         drone.loadedProducts.add(product);
+        warehouse.products.get(product.type).count -= product.count;
     }
 }
