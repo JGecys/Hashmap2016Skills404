@@ -23,6 +23,7 @@ public class LoadCommand implements IDroneCommand {
 
     @Override
     public void execute() {
+        drone.executedCommands.add(this);
         drone.turn += ((int) Math.ceil(warehouse.location.distanceTo(drone.position))) + 1;
         drone.position = warehouse.location;
         drone.loadedProducts.add(product);

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,6 +15,7 @@ public class Main {
         new Main();
     }
 
+    public Integer currentTurn = 0;
     public Integer rows;
     public Integer columns;
     public Integer turns;
@@ -28,8 +30,26 @@ public class Main {
 
     private void init() {
         readFile();
-        System.out.println("");
     }
+
+    public Drone closestAvailableDrone(Position pos){
+        while(currentTurn < turns){
+            List<Drone> availableDrones = new ArrayList<>();
+            for (Drone drone : drones) {
+                if(drone.turn <= currentTurn){
+                    availableDrones.add(drone);
+                }
+            }
+            if(availableDrones.size() > 0){
+                availableDrones.sort((o1, o2) -> o1.position.distanceTo(pos).compareTo(o2.position.distanceTo(pos)));
+                return availableDrones.get(0);
+            }
+            currentTurn++;
+        }
+        return null;
+    }
+
+
 
     public void readFile() {
         try {

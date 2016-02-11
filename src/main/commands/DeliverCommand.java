@@ -23,9 +23,17 @@ public class DeliverCommand implements IDroneCommand {
 
     @Override
     public void execute() {
+        drone.executedCommands.add(this);
         drone.turn += ((int) Math.ceil(order.destination.distanceTo(drone.position))) + 1;
         drone.position = order.destination;
         drone.loadedProducts.remove(product);
         order.orders.get(product.type).count -= product.count;
+        for (Product product : order.orders) {
+            if(product.count != 0){
+                order.isCompleted = false;
+                return;
+            }
+        }
+        order.isCompleted = true;
     }
 }
