@@ -11,7 +11,7 @@ public class Product {
     }
 
     public int getWeight() {
-        return ProductWeights.getInstance().getWeight(type);
+        return ProductWeights.getInstance().getWeight(type) * count;
     }
 
     @Override

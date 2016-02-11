@@ -25,4 +25,12 @@ public class Drone {
         }
     }
 
+    public Integer getWeight(){
+        Integer weight = 0;
+        for (Product loadedProduct : loadedProducts) {
+            weight += loadedProduct.getWeight();
+        }
+        return weight;
+    }
+
 }
