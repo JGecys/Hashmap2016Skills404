@@ -1,6 +1,7 @@
 package main.commands;
 
 import main.Drone;
+import main.Main;
 import main.Order;
 import main.Product;
 
@@ -27,13 +28,18 @@ public class DeliverCommand implements IDroneCommand {
         drone.turn += ((int) Math.ceil(order.destination.distanceTo(drone.position))) + 1;
         drone.position = order.destination;
         drone.loadedProducts.remove(product);
-        order.orders.get(product.type).count -= product.count;
+        for (Product order1 : order.orders) {
+            if(order1.type.equals(product.type)){
+                order1.count -= product.count;
+            }
+        }
         for (Product product : order.orders) {
-            if(product.count != 0){
+            if(product.count > 0){
                 order.isCompleted = false;
                 return;
             }
         }
         order.isCompleted = true;
+        Main.cnt++;
     }
 }

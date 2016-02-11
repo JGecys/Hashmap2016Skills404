@@ -14,4 +14,16 @@ public class Order {
         this.id = id;
         this.destination = destination;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Order order = (Order) o;
+
+        if (id != null ? !id.equals(order.id) : order.id != null) return false;
+        return !(destination != null ? !destination.equals(order.destination) : order.destination != null);
+
+    }
 }

@@ -1,6 +1,7 @@
 package main.commands;
 
 import main.Drone;
+import main.Main;
 import main.Product;
 import main.Warehouse;
 
@@ -28,5 +29,6 @@ public class LoadCommand implements IDroneCommand {
         drone.position = warehouse.location;
         drone.loadedProducts.add(product);
         warehouse.products.get(product.type).count -= product.count;
+        Main.cnt++;
     }
 }
