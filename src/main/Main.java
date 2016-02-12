@@ -6,6 +6,7 @@ import main.commands.LoadCommand;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -46,47 +47,76 @@ public class Main {
         }
     }
 
-    public List<Integer> ignore = new ArrayList<>();
-
     public void execution() {
-        while (incompleteOrders() && currentTurn < turns) {
-            for (Order order : getTodoOrders()) {
-                int treshhold = 0;
-                Drone closestAvailableDrone = getClosestAvailableDrone(order.destination);
-                System.out.println("executing order: " + order.id);
-                for (Product product : order.orders) {
-                    if (product.count > 0) {
-                        Warehouse warehouse = getWarehouse(order.destination, product);
-                        Integer weight = ProductWeights.getInstance().getWeight(product.type);
-                        Integer limit = ProductWeights.getInstance().getWeightLimit();
-                        Integer availableWeight = limit - closestAvailableDrone.getWeight();
-                        Integer count = availableWeight / weight;
-                        int min = Math.min(count, warehouse.products.get(product.type).count);
-                        if(min != 0) {
-                            closestAvailableDrone.commands
-                                    .add(new LoadCommand(warehouse,
-                                            new Product(product.type, min),
-                                            closestAvailableDrone));
-                            closestAvailableDrone.execute();
-                        }
+        Drone drone = getAvailableDrone();
+        for (Order order : orders) {
+            for (Product product : order.orders) {
+                int loaded = 0;
+                for (Warehouse warehouse : getWarehousesForProduct(product)) {
+                    if (loaded >= product.count) {
+                        break;
                     }
+                    if (drone.getWeight() + product.getWeight() >= ProductWeights.getInstance().getWeightLimit()) {
+                        for (Product loadedProduct : drone.loadedProducts) {
+                            drone.commands.add(new DeliverCommand(order, loadedProduct, drone));
+                        }
+                        drone.execute();
+                        drone = getAvailableDrone();
+                    }
+
+                    Integer weight = ProductWeights.getInstance().getWeight(product.type);
+                    Integer limit = ProductWeights.getInstance().getWeightLimit();
+                    Integer availableWeight = limit - drone.getWeight();
+                    Integer count = availableWeight / weight;
+                    if (count < product.count) {
+                        Product loadedProduct = warehouse.products.get(product.type);
+                        loaded = loadedProduct.count;
+                        drone.commands.add(new LoadCommand(warehouse, new Product(loadedProduct.type, count), drone));
+                        drone.execute();
+                        for (Product loadedProduct2 : drone.loadedProducts) {
+                            drone.commands.add(new DeliverCommand(order, loadedProduct2, drone));
+                        }
+                        drone.execute();
+                        drone = getAvailableDrone();
+                        continue;
+                    }
+
+                    Product loadedProduct = warehouse.products.get(product.type);
+                    int currentLoad = Math.min(loadedProduct.count, product.count);
+                    loaded += currentLoad;
+                    drone.commands.add(new LoadCommand(warehouse, new Product(product.type, currentLoad), drone));
+                    drone.execute();
                 }
-                for (Product product : closestAvailableDrone.loadedProducts) {
-                    closestAvailableDrone.commands.add(new DeliverCommand(order, product, closestAvailableDrone));
-                }
-                closestAvailableDrone.execute();
             }
-            currentTurn++;
         }
+        for (Product loadedProduct2 : drone.loadedProducts) {
+            drone.commands.add(new DeliverCommand(order, loadedProduct2, drone));
+        }
+        drone.execute();
+    }
+
+    public List<Warehouse> getWarehousesForProduct(Product product) {
+        List<Warehouse> warehouses = new ArrayList<>();
+        for (Warehouse warehouse : this.warehouses) {
+            if (warehouse.products.get(product.type).count > 0) {
+                warehouses.add(warehouse);
+            }
+        }
+        warehouses.sort((o1, o2) -> Integer.compare(o1.products.get(product.type).count, o2.products.get(product.type).count));
+        return warehouses;
+    }
+
+    public Drone getAvailableDrone() {
+        List<Drone> available = getAvailableDrones();
+        available.sort((o1, o2) -> o1.turn.compareTo(o2.turn));
+        return available.get(0);
     }
 
     public boolean incompleteOrders() {
         for (Order order : orders) {
-            if(ignore.indexOf(order.id) < 0){
-                for (Product product : order.orders) {
-                    if (product.count > 0) {
-                        return true;
-                    }
+            for (Product product : order.orders) {
+                if (product.count > 0) {
+                    return true;
                 }
             }
         }
@@ -118,15 +148,15 @@ public class Main {
                 hasProduct.add(warehouse);
             }
         }
-        if(hasProduct.size() > 0){
-            hasProduct.sort((o1, o2) -> o1.products.get(product.type).count.compareTo(o2.products.get(product.type).count));
+        if (hasProduct.size() > 0) {
+            hasProduct.sort((o1, o2) -> Integer.compare(o1.products.get(product.type).count, o2.products.get(product.type).count));
             return hasProduct;
         }
         for (Warehouse warehouse : warehouses) {
             hasProduct.add(warehouse);
         }
 
-        hasProduct.sort((o1, o2) -> o1.products.get(product.type).count.compareTo(o2.products.get(product.type).count) * -1);
+        hasProduct.sort((o1, o2) -> Integer.compare(o1.products.get(product.type).count, o2.products.get(product.type).count));
         return hasProduct;
 
     }
@@ -245,13 +275,13 @@ public class Main {
                     int type = scanner.nextInt();
                     boolean found = false;
                     for (Product order : temp.orders) {
-                        if(order.type.equals(type)){
+                        if (order.type == type) {
                             order.count++;
                             found = true;
                             break;
                         }
                     }
-                    if(!found){
+                    if (!found) {
                         temp.orders.add(new Product(type, 1));
                     }
                 }

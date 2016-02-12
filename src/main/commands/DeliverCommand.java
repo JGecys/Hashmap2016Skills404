@@ -7,11 +7,13 @@ import main.Product;
 
 public class DeliverCommand implements IDroneCommand {
 
+    private final int count;
     public Order order;
     public Product product;
     public Drone drone;
 
     public DeliverCommand(Order order, Product product, Drone drone) {
+        this.count = product.count;
         this.order = order;
         this.product = product;
         this.drone = drone;
@@ -19,7 +21,7 @@ public class DeliverCommand implements IDroneCommand {
 
     @Override
     public String getCommand() {
-        return drone.id + " D " + order.id + " " + product.type + " " + product.count;
+        return drone.id + " D " + order.id + " " + product.type + " " + count;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class DeliverCommand implements IDroneCommand {
         drone.position = order.destination;
         drone.loadedProducts.remove(product);
         for (Product order1 : order.orders) {
-            if(order1.type.equals(product.type)){
+            if(order1.type == product.type){
                 order1.count -= product.count;
             }
         }

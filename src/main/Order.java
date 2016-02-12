@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Order {
 
-    public Integer id;
+    public int id;
     public Position destination;
     public List<Product> orders = new ArrayList<>();
     public boolean isCompleted = false;
@@ -22,7 +22,7 @@ public class Order {
 
         Order order = (Order) o;
 
-        if (id != null ? !id.equals(order.id) : order.id != null) return false;
+        if (id != order.id) return false;
         return !(destination != null ? !destination.equals(order.destination) : order.destination != null);
 
     }

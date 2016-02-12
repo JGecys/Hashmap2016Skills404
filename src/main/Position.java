@@ -2,14 +2,14 @@ package main;
 
 public class Position {
 
-    public Integer coordX;
-    public Integer coordY;
+    public int coordX;
+    public int coordY;
 
     public Position() {
         this(0, 0);
     }
 
-    public Position(Integer coordX, Integer coordY) {
+    public Position(int coordX, int coordY) {
         this.coordX = coordX;
         this.coordY = coordY;
     }

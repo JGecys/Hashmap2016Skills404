@@ -11,20 +11,20 @@ public class ProductWeights {
     }
 
     private List<Integer> weights = new ArrayList<>();
-    private Integer weightLimit;
+    private int weightLimit;
 
     private ProductWeights() {
     }
 
-    public void addWeight(Integer weight){
+    public void addWeight(int weight){
         weights.add(weight);
     }
 
-    public Integer getWeight(Integer type){
+    public Integer getWeight(int type){
         return weights.get(type);
     }
 
-    public void setWeightLimit(Integer limit){
+    public void setWeightLimit(int limit){
         this.weightLimit = limit;
     }
 
